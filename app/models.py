@@ -19,7 +19,7 @@ class PlaylistRequest(BaseModel):
     """Request model for playlist generation"""
 
     prompt: str = Field(..., description="Description of the desired playlist")
-    model: str = Field(default="gpt-4", description="AI model to use")
+    model: str = Field(..., description="AI model to use (required)")
     min_tracks: int = Field(default=30, ge=1, le=100, description="Minimum number of tracks")
     max_tracks: int = Field(default=50, ge=1, le=200, description="Maximum number of tracks")
 

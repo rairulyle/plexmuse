@@ -75,7 +75,7 @@ def test_create_recommendations(mock_plex_service, mock_llm_service):
     mock_playlist = type("MockPlaylist", (), {"title": "Test Playlist", "ratingKey": "123"})()
     mock_plex_service.create_curated_playlist.return_value = mock_playlist
 
-    request_data = {"prompt": "Create a rock playlist", "model": "gpt-4", "min_tracks": 2, "max_tracks": 5}
+    request_data = {"prompt": "Create a rock playlist", "model": "gpt-4o", "min_tracks": 2, "max_tracks": 5}
 
     response = client.post("/recommendations", json=request_data)
     assert response.status_code == 200
@@ -92,7 +92,7 @@ def test_create_recommendations_error(mock_plex_service, mock_llm_service):
     """Test error handling in recommendations endpoint"""
     mock_llm_service.get_artist_recommendations.side_effect = Exception("LLM error")
 
-    request_data = {"prompt": "Create a rock playlist", "model": "gpt-4", "min_tracks": 2, "max_tracks": 5}
+    request_data = {"prompt": "Create a rock playlist", "model": "gpt-4o", "min_tracks": 2, "max_tracks": 5}
 
     response = client.post("/recommendations", json=request_data)
     assert response.status_code == 500
@@ -161,3 +161,14 @@ def test_get_providers_none_configured():
         assert response.status_code == 200
         providers = response.json()
         assert len(providers) == 0
+
+
+def test_create_recommendations_missing_model(mock_plex_service):
+    """Test that missing model field returns 422 validation error"""
+    request_data = {"prompt": "Create a rock playlist", "min_tracks": 2, "max_tracks": 5}
+
+    response = client.post("/recommendations", json=request_data)
+    assert response.status_code == 422
+
+    error_detail = response.json()["detail"]
+    assert any(err["loc"] == ["body", "model"] for err in error_detail)

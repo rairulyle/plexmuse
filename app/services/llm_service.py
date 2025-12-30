@@ -31,7 +31,7 @@ class LLMService:
     A service class for generating playlist recommendations using language models.
     """
 
-    def get_artist_recommendations(self, prompt: str, artists: List[Artist], model: str = "gpt-4"):
+    def get_artist_recommendations(self, prompt: str, artists: List[Artist], model: str):
         """First step: Get relevant artists based on the prompt"""
         try:
             artist_context = "Available artists and their genres:\n" + "\n".join(
@@ -83,7 +83,7 @@ class LLMService:
             raise
 
     def get_track_recommendations(
-        self, prompt: str, artist_tracks: dict, model: str = "gpt-4", min_tracks: int = 30, max_tracks: int = 50
+        self, prompt: str, artist_tracks: dict, model: str, min_tracks: int = 30, max_tracks: int = 50
     ):  # pylint: disable=too-many-arguments,too-many-locals,too-many-positional-arguments
         """Get track recommendations with simplified album context"""
         try:
@@ -139,7 +139,7 @@ class LLMService:
             logger.error("Track recommendation failed: %s", str(e))
             raise
 
-    def generate_playlist_name(self, prompt: str, model: str = "gpt-4") -> str:
+    def generate_playlist_name(self, prompt: str, model: str) -> str:
         """Generate a playlist name based on the prompt"""
         try:
             system_prompt = """
