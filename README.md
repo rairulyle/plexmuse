@@ -4,78 +4,91 @@ Welcome to **Plexmuse**! This project leverages the power of AI to generate pers
 
 ## Features ✨
 
-- **AI-Powered Recommendations**: Generate playlists using advanced language models like GPT-4 and Claude.
+- **AI-Powered Recommendations**: Generate playlists using advanced language models like GPT-4, Claude, and Gemini.
+- **Multiple LLM Providers**: Choose from OpenAI, Anthropic, or Google Gemini models with optimized temperature settings per provider.
 - **Seamless Plex Integration**: Fetch and manage your music library directly from Plex.
-- **Customizable Playlists**: Tailor your playlists with specific prompts and models.
+- **Library Statistics**: View your music library stats (artists, albums, tracks) at a glance.
+- **Smart Caching**: Library data is cached for fast performance with manual refresh when you add new music.
+- **Customizable Playlists**: Tailor your playlists with specific prompts and adjustable playlist lengths (short/medium/long).
 
 ## Getting Started 🚀
 
 ### Prerequisites
 
-- Python 3
+- Docker
 - Plex Media Server with a Music library
-- OpenAI API Key (for GPT-4)
-- Anthropic API Key (optional, for Claude)
+- <strong>At least one LLM API key:</strong>
+  - OpenAI API Key (for GPT-5, GPT-5 mini, GPT-5 nano)
+  - Anthropic API Key (for Claude Sonnet 4.5, Claude Haiku 3)
+  - Google Gemini API Key (for Gemini Flash)
 
 ### Installation
 
+Create a `docker-compose.yml` file:
+
+```yaml
+services:
+  plexmuse:
+    image: ghcr.io/rairulyle/plexmuse:latest
+    ports:
+      - "8000:8000"
+    environment:
+      - PLEX_BASE_URL=http://your-plex-server:32400
+      - PLEX_TOKEN=your-plex-token
+    #   - OPENAI_API_KEY=
+    #   - ANTHROPIC_API_KEY=
+    #   - GEMINI_API_KEY=
+    restart: unless-stopped
+```
+
+**Finding your Plex credentials:**
+
+- `PLEX_BASE_URL`: Your Plex server URL (e.g., `http://192.168.1.100:32400`)
+- `PLEX_TOKEN`: See [Finding an Authentication Token](https://support.plex.tv/articles/204059436-finding-an-authentication-token-x-plex-token/)
+
+Start the application:
+
+```sh
+docker compose up -d
+```
+
+The application will be available at `http://localhost:8000`
+
+### Development
+
 1. **Clone the repository**:
-    ```sh
-    git clone git@github.com:LubergAlexander/plexmuse.git
-    cd plexmuse
-    ```
 
-2. **Setup**:
-    ```sh
-    make all
-    ```
+   ```sh
+   git clone git@github.com:rairulyle/plexmuse.git
+   cd plexmuse
+   ```
 
-3. **Set up environment variables**:
-    Create a .env file in the root directory and add your API keys:
+2. **Set up environment variables**:
 
-    ```sh
-    cp .env.example .env
-    ```
+   ```sh
+   cp .env.example .env
+   # Edit .env with your configuration
+   ```
 
-    To find `PLEX_BASE_URL` and `PLEX_TOKEN`, refer to the Plex support article: [Finding an Authentication Token (X-Plex-Token)](https://support.plex.tv/articles/204059436-finding-an-authentication-token-x-plex-token/).
+3. **Run with Docker Compose**:
 
-    For setting up OpenAI, Anthropic, or other LLM keys, follow the instructions in the LiteLLM documentation: [LiteLLM - Set Keys](https://docs.litellm.ai/docs/set_keys).
-
-### Running the Application
-
-You can run the application using the Makefile or directly with Docker.
-
-#### Using the Makefile
-
-1. **Set up and run the application**:
-    ```sh
-    make run
-    ```
-2. **Start**:
-    ```sh
-    make start
-    ```
-
-#### Using Docker
-
-1. **Build the Docker image**:
-    ```sh
-    docker compose build
-    ```
-
-2. **Start the Docker container**:
-    ```sh
-    docker compose up
-    ```
-
+   ```sh
+   docker compose up -d
+   ```
 
 ## Usage 📖
 
 ### User Interface
 
-Access the user interface at the root route `/`. This UI allows you to interact with the API, select playlist length, and is mobile-friendly.
-![UI Screenshot](plexmuse-ui.png)
+Access the user interface at the specified port (default: `8000`). This UI allows you to interact with the API, select playlist length, and is mobile-friendly.
+![UI Screenshot](ui.webp)
 
+The UI includes:
+
+- **AI Provider Selector**: Choose from available LLM providers based on your configured API keys
+- **Playlist Length Options**: Short (~30 tracks), Medium (~60 tracks), or Long (~120 tracks)
+- **Library Stats**: View your music library statistics in the header
+- **Refresh Button**: Manually refresh the library cache when you add new music to Plex
 
 ### API
 
@@ -83,13 +96,29 @@ Send a POST request to `/recommendations` with the following JSON body:
 
 ```json
 {
-    "prompt": "Chill vibes for a rainy day",
-    "model": "anthropic/claude-3-5-sonnet-latest",
-    "min_tracks": 10,
-    "max_tracks": 20
+  "prompt": "Chill vibes for a rainy day",
+  "model": "anthropic/claude-sonnet-4-5-20250929",
+  "min_tracks": 10,
+  "max_tracks": 20
 }
 ```
+
+#### Available Endpoints
+
+| Endpoint           | Method | Description                                  |
+| ------------------ | ------ | -------------------------------------------- |
+| `/`                | GET    | Web UI                                       |
+| `/health`          | GET    | Health check with cache size                 |
+| `/stats`           | GET    | Library statistics (artists, albums, tracks) |
+| `/providers`       | GET    | List available LLM providers                 |
+| `/artists`         | GET    | List all cached artists                      |
+| `/recommendations` | POST   | Generate a playlist                          |
+| `/refresh`         | POST   | Refresh library cache                        |
 
 ### API Documentation
 
 Open your browser and navigate to `http://127.0.0.1:8000/docs` to explore the API endpoints.
+
+## Acknowledgements
+
+This project is a fork of [LubergAlexander/plexmuse](https://github.com/LubergAlexander/plexmuse). Thank you to the original author for creating this awesome project!
