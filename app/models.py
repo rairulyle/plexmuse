@@ -55,3 +55,4 @@ class LLMProvider(BaseModel):
     name: str
     model: str
     description: str
+    temperature: float = 0.7

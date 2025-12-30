@@ -88,9 +88,8 @@ async def get_artists():
     return plex_service.get_all_artists()
 
 
-@app.get("/providers", response_model=List[LLMProvider])
-async def get_providers():
-    """Get available LLM providers based on configured API keys"""
+def _get_all_providers() -> List[LLMProvider]:
+    """Get all provider definitions (internal use)"""
     providers = []
 
     # Check for OpenAI API key
@@ -101,18 +100,21 @@ async def get_providers():
                 name="GPT 5",
                 model="openai/gpt-5",
                 description="Deep music knowledge for cohesive playlists. Capacity: ~6k artists or ~8k albums.",
+                temperature=1.0,
             ),
             LLMProvider(
                 id="openai-gpt5-mini",
                 name="GPT 5 mini",
                 model="openai/gpt-5-mini",
                 description="Balanced genre-aware curation. Capacity: ~6k artists or ~8k albums.",
+                temperature=1.0,
             ),
             LLMProvider(
                 id="openai-gpt5-nano",
                 name="GPT 5 nano",
                 model="openai/gpt-5-nano",
                 description="Instant playlist generation. Capacity: ~4k artists or ~5k albums.",
+                temperature=1.0,
             ),
         ])
 
@@ -124,12 +126,14 @@ async def get_providers():
                 name="Claude Sonnet 4.5",
                 model="anthropic/claude-sonnet-4-5-20250929",
                 description="Excellent thematic flow and mood transitions. Capacity: ~10k artists or ~13k albums.",
+                temperature=0.7,
             ),
             LLMProvider(
                 id="anthropic-haiku",
                 name="Claude Haiku 3",
                 model="anthropic/claude-3-haiku-20240307",
                 description="Speedy vibe-matching. Capacity: ~10k artists or ~13k albums.",
+                temperature=0.7,
             ),
         ])
 
@@ -141,20 +145,38 @@ async def get_providers():
                 name="Gemini Flash",
                 model="gemini/gemini-flash-latest",
                 description="Fast and powerful for massive libraries. Capacity: ~50k artists or ~65k albums.",
+                temperature=1.0,
             )
         ])
 
     return providers
 
 
+def _get_temperature_for_model(model: str) -> float:
+    """Look up temperature for a model from providers"""
+    for provider in _get_all_providers():
+        if provider.model == model:
+            return provider.temperature
+    return 0.7  # Default fallback
+
+
+@app.get("/providers", response_model=List[LLMProvider])
+async def get_providers():
+    """Get available LLM providers based on configured API keys"""
+    return _get_all_providers()
+
+
 @app.post("/recommendations", response_model=PlaylistResponse)
 async def create_recommendations(request: PlaylistRequest):
     """Create playlist recommendations"""
     try:
+        # Get temperature for the selected model
+        temperature = _get_temperature_for_model(request.model)
+
         # Step 1: Get artist recommendations
         artists = plex_service.get_all_artists()
         recommended_artists = llm_service.get_artist_recommendations(
-            prompt=request.prompt, artists=artists, model=request.model
+            prompt=request.prompt, artists=artists, model=request.model, temperature=temperature
         )
 
         # Step 2: Get all recommended artists' albums in one call
@@ -165,12 +187,15 @@ async def create_recommendations(request: PlaylistRequest):
             prompt=request.prompt,
             artist_tracks=artist_albums,
             model=request.model,
+            temperature=temperature,
             min_tracks=request.min_tracks,
             max_tracks=request.max_tracks,
         )
 
         # Step 4: Generate playlist name
-        playlist_name = llm_service.generate_playlist_name(prompt=request.prompt, model=request.model)
+        playlist_name = llm_service.generate_playlist_name(
+            prompt=request.prompt, model=request.model, temperature=temperature
+        )
 
         # Step 5: Create the playlist
         playlist = plex_service.create_curated_playlist(

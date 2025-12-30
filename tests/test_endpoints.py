@@ -126,22 +126,26 @@ def test_get_providers_all_configured():
         response = client.get("/providers")
         assert response.status_code == 200
         providers = response.json()
-        assert len(providers) == 3
+        # 3 OpenAI + 2 Anthropic + 1 Gemini = 6 providers
+        assert len(providers) == 6
 
-        # Check OpenAI provider
-        openai_provider = next(p for p in providers if p["id"] == "openai")
-        assert openai_provider["name"] == "OpenAI"
-        assert "gpt-4o" in openai_provider["model"]
+        # Check OpenAI providers exist
+        openai_providers = [p for p in providers if p["id"].startswith("openai")]
+        assert len(openai_providers) == 3
+        assert any("gpt" in p["model"] for p in openai_providers)
 
-        # Check Anthropic provider
-        anthropic_provider = next(p for p in providers if p["id"] == "anthropic")
-        assert anthropic_provider["name"] == "Claude"
-        assert "claude" in anthropic_provider["model"]
+        # Check Anthropic providers exist
+        anthropic_providers = [p for p in providers if p["id"].startswith("anthropic")]
+        assert len(anthropic_providers) == 2
+        assert any("claude" in p["model"] for p in anthropic_providers)
 
-        # Check Gemini provider
-        gemini_provider = next(p for p in providers if p["id"] == "gemini")
-        assert gemini_provider["name"] == "Gemini"
-        assert "gemini" in gemini_provider["model"]
+        # Check Gemini provider exists
+        gemini_providers = [p for p in providers if p["id"].startswith("gemini")]
+        assert len(gemini_providers) == 1
+        assert "gemini" in gemini_providers[0]["model"]
+
+        # Check temperature field exists
+        assert all("temperature" in p for p in providers)
 
 
 def test_get_providers_partial_configured():
@@ -150,8 +154,9 @@ def test_get_providers_partial_configured():
         response = client.get("/providers")
         assert response.status_code == 200
         providers = response.json()
-        assert len(providers) == 1
-        assert providers[0]["id"] == "openai"
+        # 3 OpenAI models
+        assert len(providers) == 3
+        assert all(p["id"].startswith("openai") for p in providers)
 
 
 def test_get_providers_none_configured():

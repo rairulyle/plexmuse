@@ -17,19 +17,6 @@ from app.models import Artist
 logger = logging.getLogger(__name__)
 
 
-def get_temperature_for_model(model: str) -> float:
-    """Get the appropriate temperature setting for a given model."""
-    model_lower = model.lower()
-    if "claude" in model_lower:
-        return 0.7
-    if "gemini" in model_lower:
-        return 1.0
-    if "gpt" in model_lower:
-        return 1.0
-    # Default fallback
-    return 0.7
-
-
 def clean_llm_response(content: str) -> str:
     """Extract JSON from LLM response, handling markdown code blocks"""
     # Check for ```json ... ``` pattern
@@ -44,7 +31,9 @@ class LLMService:
     A service class for generating playlist recommendations using language models.
     """
 
-    def get_artist_recommendations(self, prompt: str, artists: List[Artist], model: str):
+    def get_artist_recommendations(
+        self, prompt: str, artists: List[Artist], model: str, temperature: float = 0.7
+    ):
         """First step: Get relevant artists based on the prompt"""
         try:
             artist_context = "Available artists and their genres:\n" + "\n".join(
@@ -71,7 +60,7 @@ class LLMService:
                         "content": f"Context: {artist_context}\n\nCreate a playlist for: {prompt}",
                     },
                 ],
-                temperature=get_temperature_for_model(model),
+                temperature=temperature,
             )
 
             content = clean_llm_response(response.choices[0].message.content)
@@ -96,7 +85,13 @@ class LLMService:
             raise
 
     def get_track_recommendations(
-        self, prompt: str, artist_tracks: dict, model: str, min_tracks: int = 30, max_tracks: int = 50
+        self,
+        prompt: str,
+        artist_tracks: dict,
+        model: str,
+        temperature: float = 0.7,
+        min_tracks: int = 30,
+        max_tracks: int = 50,
     ):  # pylint: disable=too-many-arguments,too-many-locals,too-many-positional-arguments
         """Get track recommendations with simplified album context"""
         try:
@@ -135,7 +130,7 @@ class LLMService:
                         """,
                     },
                 ],
-                temperature=get_temperature_for_model(model),
+                temperature=temperature,
             )
 
             content = clean_llm_response(response.choices[0].message.content)
@@ -152,7 +147,7 @@ class LLMService:
             logger.error("Track recommendation failed: %s", str(e))
             raise
 
-    def generate_playlist_name(self, prompt: str, model: str) -> str:
+    def generate_playlist_name(self, prompt: str, model: str, temperature: float = 0.7) -> str:
         """Generate a playlist name based on the prompt"""
         try:
             system_prompt = """
@@ -166,7 +161,7 @@ class LLMService:
                     {"role": "system", "content": system_prompt},
                     {"role": "user", "content": prompt},
                 ],
-                temperature=get_temperature_for_model(model),
+                temperature=temperature,
             )
 
             name = response.choices[0].message.content.strip()
