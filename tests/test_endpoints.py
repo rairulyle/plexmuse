@@ -177,3 +177,53 @@ def test_create_recommendations_missing_model(mock_plex_service):
 
     error_detail = response.json()["detail"]
     assert any(err["loc"] == ["body", "model"] for err in error_detail)
+
+
+def test_get_stats(mock_plex_service):
+    """Test stats endpoint"""
+    mock_plex_service.get_library_stats.return_value = {"artists": 100, "albums": 500, "tracks": 5000}
+
+    response = client.get("/stats")
+    assert response.status_code == 200
+
+    data = response.json()
+    assert data["artists"] == 100
+    assert data["albums"] == 500
+    assert data["tracks"] == 5000
+
+
+def test_refresh_cache_updated(mock_plex_service):
+    """Test refresh endpoint when cache is updated"""
+    mock_plex_service.refresh_cache.return_value = True
+    mock_plex_service.get_library_stats.return_value = {"artists": 110, "albums": 550, "tracks": 5500}
+
+    response = client.post("/refresh")
+    assert response.status_code == 200
+
+    data = response.json()
+    assert data["refreshed"] is True
+    assert data["stats"]["artists"] == 110
+    assert data["stats"]["albums"] == 550
+    assert data["stats"]["tracks"] == 5500
+
+
+def test_refresh_cache_not_updated(mock_plex_service):
+    """Test refresh endpoint when cache is already up to date"""
+    mock_plex_service.refresh_cache.return_value = False
+    mock_plex_service.get_library_stats.return_value = {"artists": 100, "albums": 500, "tracks": 5000}
+
+    response = client.post("/refresh")
+    assert response.status_code == 200
+
+    data = response.json()
+    assert data["refreshed"] is False
+    assert data["stats"]["artists"] == 100
+
+
+def test_refresh_cache_error(mock_plex_service):
+    """Test refresh endpoint error handling"""
+    mock_plex_service.refresh_cache.side_effect = Exception("Plex connection failed")
+
+    response = client.post("/refresh")
+    assert response.status_code == 500
+    assert "Plex connection failed" in response.json()["detail"]

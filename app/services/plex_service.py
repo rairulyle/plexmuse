@@ -74,10 +74,18 @@ class PlexService:
 
         # Only cache artists
         self._artists_cache: Dict[str, Artist] = {}  # key: artist_id -> Artist
+        self._stats_cache: Optional[Dict[str, int]] = None
+        self._library_updated_at: Optional[str] = None
 
     def get_cache_size(self) -> int:
         """Get the number of artists in the cache"""
         return len(self._artists_cache)
+
+    def get_library_stats(self) -> dict:
+        """Get library statistics (artists, albums, tracks) from cache"""
+        if self._stats_cache:
+            return self._stats_cache
+        return {"artists": 0, "albums": 0, "tracks": 0}
 
     def initialize(self):
         """Initialize artist cache"""
@@ -96,11 +104,71 @@ class PlexService:
                     id=artist_id, name=artist.title, genres=[genre.tag for genre in getattr(artist, "genres", [])]
                 )
 
-            logger.info("Cached %d artists", len(self._artists_cache))
+            # Cache library stats and updatedAt timestamp
+            self._stats_cache = {
+                "artists": len(self._artists_cache),
+                "albums": len(self._music_library.search(libtype="album")),
+                "tracks": len(self._music_library.search(libtype="track")),
+            }
+            self._library_updated_at = str(self._music_library.updatedAt) if self._music_library.updatedAt else None
+
+            logger.info(
+                "Cached %d artists, %d albums, %d tracks (updatedAt: %s)",
+                self._stats_cache["artists"],
+                self._stats_cache["albums"],
+                self._stats_cache["tracks"],
+                self._library_updated_at,
+            )
 
         except Exception as e:
             logger.error("Failed to initialize Plex cache: %s", str(e))
             raise
+
+    def refresh_cache(self) -> bool:
+        """Refresh cache if library has been updated. Returns True if cache was refreshed."""
+        if not self._music_library:
+            return False
+
+        # Reload the library section to get fresh updatedAt
+        self._music_library.reload()
+        current_updated_at = str(self._music_library.updatedAt) if self._music_library.updatedAt else None
+
+        if current_updated_at != self._library_updated_at:
+            logger.info(
+                "Library updated (was: %s, now: %s). Refreshing cache...",
+                self._library_updated_at,
+                current_updated_at,
+            )
+            # Clear existing cache
+            self._artists_cache.clear()
+            self._stats_cache = None
+
+            # Reload artists
+            artists = self._music_library.search(libtype="artist")
+            for artist in artists:
+                artist_id = str(artist.ratingKey)
+                self._artists_cache[artist_id] = Artist(
+                    id=artist_id, name=artist.title, genres=[genre.tag for genre in getattr(artist, "genres", [])]
+                )
+
+            # Reload stats
+            self._stats_cache = {
+                "artists": len(self._artists_cache),
+                "albums": len(self._music_library.search(libtype="album")),
+                "tracks": len(self._music_library.search(libtype="track")),
+            }
+            self._library_updated_at = current_updated_at
+
+            logger.info(
+                "Cache refreshed: %d artists, %d albums, %d tracks",
+                self._stats_cache["artists"],
+                self._stats_cache["albums"],
+                self._stats_cache["tracks"],
+            )
+            return True
+
+        logger.info("Library not changed, cache is up to date")
+        return False
 
     def get_all_artists(self) -> List[Artist]:
         """Get all artists from cache"""

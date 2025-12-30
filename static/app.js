@@ -15,6 +15,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const submitSpinner = document.getElementById('submitSpinner');
     const submitBtnText = document.getElementById('submitBtnText');
 
+    // Library stats elements
+    const libraryStats = document.getElementById('libraryStats');
+    const statArtists = document.getElementById('statArtists');
+    const statAlbums = document.getElementById('statAlbums');
+    const statTracks = document.getElementById('statTracks');
+    const refreshBtn = document.getElementById('refreshBtn');
+    const refreshIcon = document.getElementById('refreshIcon');
+
     // LLM providers
     let providers = [];
 
@@ -50,8 +58,61 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Fetch providers on page load
+    // Fetch library stats
+    async function fetchLibraryStats() {
+        try {
+            const response = await fetch('/stats');
+            if (!response.ok) {
+                throw new Error('Failed to fetch library stats');
+            }
+            const stats = await response.json();
+
+            // Remove skeleton classes and set content
+            const skeletonClasses = ['w-8', 'w-10', 'h-4', 'bg-gray-200', 'dark:bg-plex-gray', 'rounded', 'animate-pulse'];
+            [statArtists, statAlbums, statTracks].forEach(el => {
+                skeletonClasses.forEach(cls => el.classList.remove(cls));
+            });
+
+            statArtists.textContent = stats.artists.toLocaleString();
+            statAlbums.textContent = stats.albums.toLocaleString();
+            statTracks.textContent = stats.tracks.toLocaleString();
+        } catch (error) {
+            console.error('Error fetching library stats:', error);
+            // Hide stats on error
+            libraryStats.classList.add('hidden');
+        }
+    }
+
+    // Refresh library cache
+    async function refreshLibraryCache() {
+        refreshBtn.disabled = true;
+        refreshIcon.classList.add('animate-spin');
+
+        try {
+            const response = await fetch('/refresh', { method: 'POST' });
+            if (!response.ok) {
+                throw new Error('Failed to refresh cache');
+            }
+            const data = await response.json();
+
+            // Update stats with new values
+            statArtists.textContent = data.stats.artists.toLocaleString();
+            statAlbums.textContent = data.stats.albums.toLocaleString();
+            statTracks.textContent = data.stats.tracks.toLocaleString();
+        } catch (error) {
+            console.error('Error refreshing cache:', error);
+        } finally {
+            refreshBtn.disabled = false;
+            refreshIcon.classList.remove('animate-spin');
+        }
+    }
+
+    // Refresh button click handler
+    refreshBtn.addEventListener('click', refreshLibraryCache);
+
+    // Fetch providers and stats on page load
     fetchProviders();
+    fetchLibraryStats();
 
     // Playlist length handling
     const lengthButtons = document.querySelectorAll('.playlist-length-btn');

@@ -252,3 +252,106 @@ def test_fuzzy_track_matching(plex_service, mock_plex_server):
 
     assert playlist is not None
     mock_server.return_value.createPlaylist.assert_called_once()
+
+
+def test_refresh_cache_library_changed(plex_service, mock_plex_server):
+    """Test refresh_cache when library has been updated."""
+    _, mock_library = mock_plex_server
+
+    # Setup initial state with artists
+    artist1 = Mock(ratingKey="1", title="Artist1", genres=[])
+    artist2 = Mock(ratingKey="2", title="Artist2", genres=[])
+
+    def mock_search(*args, **kwargs):  # pylint: disable=unused-argument
+        libtype = kwargs.get("libtype")
+        if libtype == "artist":
+            return [artist1, artist2]
+        if libtype == "album":
+            return [Mock(), Mock(), Mock()]  # 3 albums
+        if libtype == "track":
+            return [Mock()] * 10  # 10 tracks
+        return []
+
+    mock_library.search.side_effect = mock_search
+    mock_library.updatedAt = "2024-01-01 10:00:00"
+
+    # Initialize service
+    plex_service.initialize()
+    assert plex_service._library_updated_at == "2024-01-01 10:00:00"
+
+    # Simulate library update
+    mock_library.updatedAt = "2024-01-01 12:00:00"
+
+    # Test refresh
+    result = plex_service.refresh_cache()
+
+    assert result is True
+    assert plex_service._library_updated_at == "2024-01-01 12:00:00"
+    mock_library.reload.assert_called_once()
+
+
+def test_refresh_cache_library_unchanged(plex_service, mock_plex_server):
+    """Test refresh_cache when library has not changed."""
+    _, mock_library = mock_plex_server
+
+    # Setup initial state
+    artist1 = Mock(ratingKey="1", title="Artist1", genres=[])
+    mock_library.search.return_value = [artist1]
+    mock_library.updatedAt = "2024-01-01 10:00:00"
+
+    # Initialize service
+    plex_service.initialize()
+
+    # Test refresh with same updatedAt
+    result = plex_service.refresh_cache()
+
+    assert result is False
+    assert plex_service._library_updated_at == "2024-01-01 10:00:00"
+    mock_library.reload.assert_called_once()
+
+
+def test_refresh_cache_no_library(plex_service):
+    """Test refresh_cache when music library is not initialized."""
+    # Don't initialize - _music_library is None
+    result = plex_service.refresh_cache()
+
+    assert result is False
+
+
+def test_get_library_stats(plex_service, mock_plex_server):
+    """Test get_library_stats returns cached stats."""
+    _, mock_library = mock_plex_server
+
+    # Setup mock search results
+    artist1 = Mock(ratingKey="1", title="Artist1", genres=[])
+    artist2 = Mock(ratingKey="2", title="Artist2", genres=[])
+
+    def mock_search(*args, **kwargs):  # pylint: disable=unused-argument
+        libtype = kwargs.get("libtype")
+        if libtype == "artist":
+            return [artist1, artist2]
+        if libtype == "album":
+            return [Mock()] * 5
+        if libtype == "track":
+            return [Mock()] * 50
+        return []
+
+    mock_library.search.side_effect = mock_search
+    mock_library.updatedAt = "2024-01-01 10:00:00"
+
+    # Initialize service
+    plex_service.initialize()
+
+    # Get stats
+    stats = plex_service.get_library_stats()
+
+    assert stats["artists"] == 2
+    assert stats["albums"] == 5
+    assert stats["tracks"] == 50
+
+
+def test_get_library_stats_no_cache(plex_service):
+    """Test get_library_stats returns zeros when cache is empty."""
+    stats = plex_service.get_library_stats()
+
+    assert stats == {"artists": 0, "albums": 0, "tracks": 0}

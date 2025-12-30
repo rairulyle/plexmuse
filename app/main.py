@@ -13,7 +13,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 
-from app.models import Artist, LLMProvider, PlaylistRequest, PlaylistResponse, Track
+from app.models import Artist, LibraryStats, LLMProvider, PlaylistRequest, PlaylistResponse, Track
 
 from .services.llm_service import LLMService
 from .services.plex_service import PlexService
@@ -80,6 +80,24 @@ async def root():
 async def health_check():
     """Health check endpoint"""
     return {"status": "healthy", "cache_size": plex_service.get_cache_size()}
+
+
+@app.get("/stats", response_model=LibraryStats)
+async def get_library_stats():
+    """Get music library statistics"""
+    return plex_service.get_library_stats()
+
+
+@app.post("/refresh")
+async def refresh_cache():
+    """Refresh the library cache if Plex library has been updated"""
+    try:
+        refreshed = plex_service.refresh_cache()
+        stats = plex_service.get_library_stats()
+        return {"refreshed": refreshed, "stats": stats}
+    except Exception as e:
+        logger.error("Error refreshing cache: %s", str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 
 @app.get("/artists", response_model=List[Artist])

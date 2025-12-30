@@ -56,3 +56,11 @@ class LLMProvider(BaseModel):
     model: str
     description: str
     temperature: float = 0.7
+
+
+class LibraryStats(BaseModel):
+    """Model for music library statistics"""
+
+    artists: int
+    albums: int
+    tracks: int
