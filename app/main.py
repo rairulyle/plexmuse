@@ -140,7 +140,7 @@ async def get_providers():
                 id="gemini-flash",
                 name="Gemini Flash",
                 model="gemini/gemini-flash-latest",
-                description="Best for massive libraries. Capacity: ~50k artists or ~65k albums.",
+                description="Fast and powerful for massive libraries. Capacity: ~50k artists or ~65k albums.",
             )
         ])
 
