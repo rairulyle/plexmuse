@@ -100,7 +100,7 @@ async def get_providers():
                 id="openai",
                 name="OpenAI",
                 model="openai/gpt-5-mini",
-                description="GPT 5 mini - Excellent for balanced reasoning.",
+                description="GPT 5 mini - Excellent for balanced reasoning",
             )
         )
 
@@ -111,7 +111,7 @@ async def get_providers():
                 id="anthropic",
                 name="Claude", 
                 model="anthropic/claude-sonnet-4-5-20250929", 
-                description="Claude Sonnet 4 - High intelligence for complex music transitions.",
+                description="Claude Sonnet 4 - High intelligence for complex music transitions",
             )
         )
 
@@ -122,7 +122,7 @@ async def get_providers():
                 id="gemini",
                 name="Gemini",
                 model="gemini-flash-latest",
-                description="Gemini Latest Flash - Best for large library indexing.",
+                description="Gemini Latest Flash - Best for large library indexing",
             )
         )
 

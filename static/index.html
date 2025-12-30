@@ -1,143 +1,215 @@
 <!DOCTYPE html>
 <html lang="en" class="h-full">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Plexmuse</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
-        // Configure Tailwind theme
-        tailwind.config = {
-            darkMode: 'media',
-            theme: {
-                extend: {
-                    colors: {
-                        plexorange: '#e5a00d'
-                    }
-                }
-            }
-        }
+      // Configure Tailwind theme with Plex brand colors
+      tailwind.config = {
+        darkMode: "media",
+        theme: {
+          extend: {
+            colors: {
+              plex: {
+                gold: "#F9BE03",
+                accent: "#E5A00D",
+                "accent-focus": "#f3b125",
+                black: "#0c0c0c",
+                charcoal: "#282A2D",
+                gray: "#3F4245",
+                "gray-dark": "#1e1e1e",
+                "gray-light": "#EDF1F5",
+              },
+            },
+          },
+        },
+      };
     </script>
-</head>
+  </head>
 
-<body class="h-full bg-gray-50 dark:bg-gray-900">
+  <body class="h-full bg-plex-gray-light dark:bg-plex-charcoal">
     <div class="min-h-full">
-        <!-- Header -->
-        <header class="bg-white shadow dark:bg-gray-800">
-            <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-                <h1 class="text-3xl font-bold tracking-tight text-gray-900 dark:text-white">Plexmuse</h1>
+      <!-- Header -->
+      <header class="bg-white shadow dark:bg-plex-gray-dark">
+        <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+          <h1
+            class="text-3xl font-bold tracking-tight text-plex-gray dark:text-white"
+          >
+            Plexmuse
+          </h1>
+        </div>
+      </header>
+
+      <!-- Main content -->
+      <main>
+        <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+          <!-- Playlist Form -->
+          <div class="bg-white shadow sm:rounded-lg dark:bg-plex-gray-dark">
+            <div class="px-4 py-5 sm:p-6">
+              <form
+                id="playlistForm"
+                class="space-y-6"
+                onsubmit="return false;"
+              >
+                <div>
+                  <label
+                    for="prompt"
+                    class="block text-sm font-medium leading-6 text-plex-gray dark:text-gray-200"
+                  >
+                    What kind of playlist do you want?
+                  </label>
+                  <div class="mt-2">
+                    <textarea
+                      id="prompt"
+                      name="prompt"
+                      rows="3"
+                      class="block w-full rounded-md border-0 px-4 py-3 text-plex-gray shadow-sm ring-1 ring-inset ring-plex-gray/30 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-plex-accent focus:outline-none dark:bg-plex-charcoal dark:text-white sm:text-sm sm:leading-6"
+                      placeholder="e.g., Energetic workout mix with hip-hop and electronic music"
+                    ></textarea>
+                  </div>
+                </div>
+
+                <div>
+                  <label
+                    for="llmProvider"
+                    class="block text-sm font-medium leading-6 text-plex-gray dark:text-gray-200"
+                  >
+                    AI Provider
+                  </label>
+                  <div class="mt-2">
+                    <select
+                      id="llmProvider"
+                      name="llmProvider"
+                      class="block w-full rounded-md border-0 px-4 py-3 text-plex-gray shadow-sm ring-1 ring-inset ring-plex-gray/30 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-plex-accent focus:outline-none dark:bg-plex-charcoal dark:text-white sm:text-sm sm:leading-6"
+                    >
+                      <option value="" disabled>Loading providers...</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div>
+                  <label
+                    class="block text-sm font-medium leading-6 text-plex-gray dark:text-gray-200 mb-2"
+                  >
+                    Playlist Length
+                  </label>
+                  <div class="grid grid-cols-3 gap-3">
+                    <button
+                      type="button"
+                      data-length="short"
+                      class="playlist-length-btn rounded-lg border-2 border-gray-300 px-3 py-2 text-sm font-semibold text-plex-gray dark:border-plex-gray dark:text-gray-200"
+                    >
+                      Short
+                      <span
+                        class="block text-xs text-gray-500 dark:text-gray-400"
+                        >~30 tracks</span
+                      >
+                    </button>
+                    <button
+                      type="button"
+                      data-length="medium"
+                      class="playlist-length-btn rounded-lg border-2 border-plex-accent bg-plex-accent/10 px-3 py-2 text-sm font-semibold text-plex-gray dark:bg-plex-accent/20 dark:text-gray-200"
+                    >
+                      Medium
+                      <span
+                        class="block text-xs text-gray-500 dark:text-gray-400"
+                        >~60 tracks</span
+                      >
+                    </button>
+                    <button
+                      type="button"
+                      data-length="long"
+                      class="playlist-length-btn rounded-lg border-2 border-gray-300 px-3 py-2 text-sm font-semibold text-plex-gray dark:border-plex-gray dark:text-gray-200"
+                    >
+                      Long
+                      <span
+                        class="block text-xs text-gray-500 dark:text-gray-400"
+                        >~120 tracks</span
+                      >
+                    </button>
+                  </div>
+                </div>
+
+                <div>
+                  <button
+                    type="submit"
+                    class="flex w-full justify-center rounded-md bg-plex-accent px-3 py-3 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-plex-accent-focus focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-600"
+                  >
+                    Generate Playlist
+                  </button>
+                </div>
+              </form>
             </div>
-        </header>
+          </div>
 
-        <!-- Main content -->
-        <main>
-            <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-                <!-- Playlist Form -->
-                <div class="bg-white shadow sm:rounded-lg dark:bg-gray-800">
-                    <div class="px-4 py-5 sm:p-6">
-                        <form id="playlistForm" class="space-y-6" onsubmit="return false;">
-                            <div>
-                                <label for="prompt"
-                                    class="block text-sm font-medium leading-6 text-gray-900 dark:text-gray-200">
-                                    What kind of playlist do you want?
-                                </label>
-                                <div class="mt-2">
-                                    <textarea id="prompt" name="prompt" rows="3"
-                                        class="block w-full rounded-md border-0 px-4 py-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-plexorange dark:bg-gray-700 dark:text-white dark:ring-gray-600 sm:text-sm sm:leading-6"
-                                        placeholder="e.g., Energetic workout mix with hip-hop and electronic music"></textarea>
-                                </div>
-                            </div>
-
-                            <div>
-                                <label for="llmProvider"
-                                    class="block text-sm font-medium leading-6 text-gray-900 dark:text-gray-200">
-                                    AI Provider
-                                </label>
-                                <div class="mt-2">
-                                    <select id="llmProvider" name="llmProvider"
-                                        class="block w-full rounded-md border-0 px-4 py-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-plexorange dark:bg-gray-700 dark:text-white dark:ring-gray-600 sm:text-sm sm:leading-6">
-                                        <option value="" disabled>Loading providers...</option>
-                                    </select>
-                                </div>
-                            </div>
-
-                            <div>
-                                <label
-                                    class="block text-sm font-medium leading-6 text-gray-900 dark:text-gray-200 mb-2">
-                                    Playlist Length
-                                </label>
-                                <div class="grid grid-cols-3 gap-3">
-                                    <button type="button" data-length="short"
-                                        class="playlist-length-btn rounded-lg border-2 border-gray-300 px-3 py-2 text-sm font-semibold dark:border-gray-600 dark:text-gray-200">
-                                        Short
-                                        <span class="block text-xs text-gray-500 dark:text-gray-400">~30 tracks</span>
-                                    </button>
-                                    <button type="button" data-length="medium"
-                                        class="playlist-length-btn rounded-lg border-2 border-plexorange bg-orange-50 px-3 py-2 text-sm font-semibold dark:bg-orange-900/20 dark:text-gray-200">
-                                        Medium
-                                        <span class="block text-xs text-gray-500 dark:text-gray-400">~60 tracks</span>
-                                    </button>
-                                    <button type="button" data-length="long"
-                                        class="playlist-length-btn rounded-lg border-2 border-gray-300 px-3 py-2 text-sm font-semibold dark:border-gray-600 dark:text-gray-200">
-                                        Long
-                                        <span class="block text-xs text-gray-500 dark:text-gray-400">~120 tracks</span>
-                                    </button>
-                                </div>
-                            </div>
-
-                            <div>
-                                <button type="submit"
-                                    class="flex w-full justify-center rounded-md bg-plexorange px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-orange-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-600">
-                                    Generate Playlist
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-
-                <!-- Loading State -->
-                <div id="loadingState" class="hidden mt-6">
-                    <div class="flex items-center justify-center">
-                        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-plexorange"></div>
-                        <span class="ml-2 text-sm text-gray-500 dark:text-gray-400">Generating your perfect
-                            playlist...</span>
-                    </div>
-                </div>
-
-                <!-- Results -->
-                <div id="results" class="hidden mt-6 bg-white shadow sm:rounded-lg dark:bg-gray-800">
-                    <div class="px-4 py-5 sm:p-6">
-                        <div class="flex justify-between items-center mb-6">
-                            <h2 id="playlistName" class="text-xl font-semibold text-gray-900 dark:text-white"></h2>
-                            <a id="plexLink" href="#" target="_blank"
-                                class="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-plexorange rounded-md hover:bg-orange-500">
-                                Open in Plex
-                                <svg xmlns="http://www.w3.org/2000/svg" class="ml-2 h-4 w-4" viewBox="0 0 20 20"
-                                    fill="currentColor">
-                                    <path
-                                        d="M11 3a1 1 0 100 2h2.586l-6.293 6.293a1 1 0 101.414 1.414L15 6.414V9a1 1 0 102 0V4a1 1 0 00-1-1h-5z" />
-                                    <path
-                                        d="M5 5a2 2 0 00-2 2v8a2 2 0 002 2h8a2 2 0 002-2v-3a1 1 0 10-2 0v3H5V7h3a1 1 0 000-2H5z" />
-                                </svg>
-                            </a>
-                        </div>
-
-                        <div id="trackCount" class="text-sm text-gray-500 dark:text-gray-400 mb-4"></div>
-
-                        <!-- Tracks List -->
-                        <div class="mt-6">
-                            <ul id="tracksList" class="divide-y divide-gray-200 dark:divide-gray-700">
-                                <!-- Tracks will be inserted here -->
-                            </ul>
-                        </div>
-                    </div>
-                </div>
+          <!-- Loading State -->
+          <div id="loadingState" class="hidden mt-6">
+            <div class="flex items-center justify-center">
+              <div
+                class="animate-spin rounded-full h-8 w-8 border-b-2 border-plex-accent"
+              ></div>
+              <span class="ml-2 text-sm text-gray-500 dark:text-gray-400"
+                >Generating your perfect playlist...</span
+              >
             </div>
-        </main>
+          </div>
+
+          <!-- Results -->
+          <div
+            id="results"
+            class="hidden mt-6 bg-white shadow sm:rounded-lg dark:bg-plex-gray-dark"
+          >
+            <div class="px-4 py-5 sm:p-6">
+              <div class="flex justify-between items-center mb-6">
+                <h2
+                  id="playlistName"
+                  class="text-xl font-semibold text-plex-gray dark:text-white"
+                ></h2>
+                <a
+                  id="plexLink"
+                  href="#"
+                  target="_blank"
+                  class="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-plex-accent rounded-md hover:bg-plex-gold"
+                >
+                  Open in Plex
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    class="ml-2 h-4 w-4"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                  >
+                    <path
+                      d="M11 3a1 1 0 100 2h2.586l-6.293 6.293a1 1 0 101.414 1.414L15 6.414V9a1 1 0 102 0V4a1 1 0 00-1-1h-5z"
+                    />
+                    <path
+                      d="M5 5a2 2 0 00-2 2v8a2 2 0 002 2h8a2 2 0 002-2v-3a1 1 0 10-2 0v3H5V7h3a1 1 0 000-2H5z"
+                    />
+                  </svg>
+                </a>
+              </div>
+
+              <div
+                id="trackCount"
+                class="text-sm text-plex-gray/70 dark:text-gray-400 mb-4"
+              ></div>
+
+              <!-- Tracks List -->
+              <div class="mt-6">
+                <ul
+                  id="tracksList"
+                  class="divide-y divide-gray-200 dark:divide-plex-gray"
+                >
+                  <!-- Tracks will be inserted here -->
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
     </div>
 
     <script src="/static/app.js"></script>
-</body>
-
+  </body>
 </html>

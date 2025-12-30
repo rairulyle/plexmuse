@@ -65,12 +65,12 @@ document.addEventListener('DOMContentLoaded', () => {
         lengthButtons.forEach(btn => {
             const isActive = btn.dataset.length === length;
             // Reset all buttons first
-            btn.classList.remove('border-plexorange', 'border-gray-300', 'bg-orange-50', 'dark:bg-orange-900/20', 'dark:border-gray-600');
+            btn.classList.remove('border-plex-accent', 'border-gray-300', 'bg-plex-accent/10', 'dark:bg-plex-accent/20', 'dark:border-plex-gray');
             // Add appropriate styles
             if (isActive) {
-                btn.classList.add('border-plexorange', 'bg-orange-50', 'dark:bg-orange-900/20');
+                btn.classList.add('border-plex-accent', 'bg-plex-accent/10', 'dark:bg-plex-accent/20');
             } else {
-                btn.classList.add('border-gray-300', 'dark:border-gray-600');
+                btn.classList.add('border-gray-300', 'dark:border-plex-gray');
             }
         });
     }
