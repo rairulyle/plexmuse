@@ -24,6 +24,11 @@ Welcome to **Plexmuse**! This project leverages the power of AI to generate pers
 
 ### Installation
 
+**Finding your Plex credentials:**
+
+- `PLEX_BASE_URL`: Your Plex server URL (e.g., `http://192.168.1.100:32400`)
+- `PLEX_TOKEN`: See [Finding an Authentication Token](https://support.plex.tv/articles/204059436-finding-an-authentication-token-x-plex-token/)
+
 Create a `docker-compose.yml` file:
 
 ```yaml
@@ -33,18 +38,13 @@ services:
     ports:
       - "8000:8000"
     environment:
-      - PLEX_BASE_URL=http://your-plex-server:32400
-      - PLEX_TOKEN=your-plex-token
-    #   - OPENAI_API_KEY=
-    #   - ANTHROPIC_API_KEY=
-    #   - GEMINI_API_KEY=
+      PLEX_BASE_URL: http://${IP_ADDRESS}:32400
+      PLEX_TOKEN: ${PLEX_API_KEY}
+    #   OPENAI_API_KEY: ${OPENAI_API_KEY}
+    #   ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
+    #   GEMINI_API_KEY: ${GEMINI_API_KEY}
     restart: unless-stopped
 ```
-
-**Finding your Plex credentials:**
-
-- `PLEX_BASE_URL`: Your Plex server URL (e.g., `http://192.168.1.100:32400`)
-- `PLEX_TOKEN`: See [Finding an Authentication Token](https://support.plex.tv/articles/204059436-finding-an-authentication-token-x-plex-token/)
 
 Start the application:
 
@@ -52,7 +52,7 @@ Start the application:
 docker compose up -d
 ```
 
-The application will be available at `http://localhost:8000`
+The application will be available at `http://localhost:8000` by default.
 
 ### Development
 
