@@ -1,7 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
     // DOM elements
     const form = document.getElementById('playlistForm');
-    const loadingState = document.getElementById('loadingState');
+    const skeletonState = document.getElementById('skeletonState');
     const results = document.getElementById('results');
     const playlistName = document.getElementById('playlistName');
     const tracksList = document.getElementById('tracksList');
@@ -11,6 +11,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const errorText = document.getElementById('errorText');
     const dismissError = document.getElementById('dismissError');
     const llmProviderSelect = document.getElementById('llmProvider');
+    const submitBtn = document.getElementById('submitBtn');
+    const submitSpinner = document.getElementById('submitSpinner');
+    const submitBtnText = document.getElementById('submitBtnText');
 
     // LLM providers
     let providers = [];
@@ -111,13 +114,28 @@ document.addEventListener('DOMContentLoaded', () => {
         dismissError.addEventListener('click', hideError);
     }
 
+    // Loading state helpers
+    function setLoading(isLoading) {
+        if (isLoading) {
+            submitBtn.disabled = true;
+            submitSpinner.classList.remove('hidden');
+            submitBtnText.textContent = 'Generating...';
+            skeletonState.classList.remove('hidden');
+            results.classList.add('hidden');
+        } else {
+            submitBtn.disabled = false;
+            submitSpinner.classList.add('hidden');
+            submitBtnText.textContent = 'Generate Playlist';
+            skeletonState.classList.add('hidden');
+        }
+    }
+
     // Handle form submission
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
 
         // Show loading state
-        loadingState.classList.remove('hidden');
-        results.classList.add('hidden');
+        setLoading(true);
         hideError(); // Hide any previous errors
 
         // Get form data
@@ -127,7 +145,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (!selectedModel) {
             showError('Please select an AI provider');
-            loadingState.classList.add('hidden');
+            setLoading(false);
             return;
         }
 
@@ -171,10 +189,10 @@ document.addEventListener('DOMContentLoaded', () => {
             // Render tracks list
             tracksList.innerHTML = data.tracks
                 .map((track, index) => `
-                    <li class="py-3 flex items-center space-x-4 hover:bg-gray-50 dark:hover:bg-gray-700/50 px-4 -mx-4">
+                    <li class="py-3 flex items-center space-x-4 hover:bg-gray-50 dark:hover:bg-plex-gray/50 px-4 -mx-4">
                         <span class="text-gray-400 dark:text-gray-500 w-8">${index + 1}</span>
                         <div class="min-w-0 flex-1">
-                            <p class="text-sm font-medium text-gray-900 dark:text-white truncate">${track.title}</p>
+                            <p class="text-sm font-medium text-plex-gray dark:text-white truncate">${track.title}</p>
                             <p class="text-sm text-gray-500 dark:text-gray-400 truncate">${track.artist}</p>
                         </div>
                     </li>
@@ -187,6 +205,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             // Show results
+            setLoading(false);
             results.classList.remove('hidden');
             // Scroll results into view
             results.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
@@ -194,8 +213,7 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (error) {
             console.error('Error:', error);
             showError(error.message || 'Failed to generate playlist. Please try again.');
-        } finally {
-            loadingState.classList.add('hidden');
+            setLoading(false);
         }
     });
 });

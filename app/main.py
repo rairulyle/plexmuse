@@ -95,36 +95,54 @@ async def get_providers():
 
     # Check for OpenAI API key
     if os.getenv("OPENAI_API_KEY"):
-        providers.append(
+        providers.extend([
             LLMProvider(
-                id="openai",
-                name="OpenAI",
+                id="openai-gpt5",
+                name="GPT 5",
+                model="openai/gpt-5",
+                description="Deep music knowledge for cohesive playlists. Capacity: ~6k artists or ~8k albums.",
+            ),
+            LLMProvider(
+                id="openai-gpt5-mini",
+                name="GPT 5 mini",
                 model="openai/gpt-5-mini",
-                description="GPT 5 mini - Excellent for balanced reasoning",
-            )
-        )
+                description="Balanced genre-aware curation. Capacity: ~6k artists or ~8k albums.",
+            ),
+            LLMProvider(
+                id="openai-gpt5-nano",
+                name="GPT 5 nano",
+                model="openai/gpt-5-nano",
+                description="Instant playlist generation. Capacity: ~4k artists or ~5k albums.",
+            ),
+        ])
 
     # Check for Anthropic API key
     if os.getenv("ANTHROPIC_API_KEY"):
-        providers.append(
+        providers.extend([
             LLMProvider(
-                id="anthropic",
-                name="Claude", 
-                model="anthropic/claude-sonnet-4-5-20250929", 
-                description="Claude Sonnet 4 - High intelligence for complex music transitions",
-            )
-        )
+                id="anthropic-sonnet",
+                name="Claude Sonnet 4.5",
+                model="anthropic/claude-sonnet-4-5-20250929",
+                description="Excellent thematic flow and mood transitions. Capacity: ~10k artists or ~13k albums.",
+            ),
+            LLMProvider(
+                id="anthropic-haiku",
+                name="Claude Haiku 3",
+                model="anthropic/claude-3-haiku-20240307",
+                description="Speedy vibe-matching. Capacity: ~10k artists or ~13k albums.",
+            ),
+        ])
 
     # Check for Gemini API key
     if os.getenv("GEMINI_API_KEY"):
-        providers.append(
+        providers.extend([
             LLMProvider(
-                id="gemini",
-                name="Gemini",
-                model="gemini-flash-latest",
-                description="Gemini Latest Flash - Best for large library indexing",
+                id="gemini-flash",
+                name="Gemini Flash",
+                model="gemini/gemini-flash-latest",
+                description="Best for massive libraries. Capacity: ~50k artists or ~65k albums.",
             )
-        )
+        ])
 
     return providers
 
