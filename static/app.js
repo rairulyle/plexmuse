@@ -23,8 +23,29 @@ document.addEventListener('DOMContentLoaded', () => {
     const refreshBtn = document.getElementById('refreshBtn');
     const refreshIcon = document.getElementById('refreshIcon');
 
-    // LLM providers
-    let providers = [];
+    // Skeleton classes for stats loading state
+    const baseSkeletonClasses = ['h-4', 'bg-gray-200', 'dark:bg-plex-gray', 'rounded', 'animate-pulse'];
+
+    function showStatSkeletons() {
+        [statArtists, statAlbums, statTracks].forEach(el => {
+            el.textContent = '';
+            baseSkeletonClasses.forEach(cls => el.classList.add(cls));
+        });
+    }
+
+    function hideStatSkeletons() {
+        [statArtists, statAlbums, statTracks].forEach(el => {
+            baseSkeletonClasses.forEach(cls => el.classList.remove(cls));
+        });
+    }
+
+    function updateStats(stats) {
+        hideStatSkeletons();
+        const format = (val) => typeof val === 'number' ? val.toLocaleString() : val;
+        statArtists.textContent = format(stats.artists);
+        statAlbums.textContent = format(stats.albums);
+        statTracks.textContent = format(stats.tracks);
+    }
 
     // Fetch available LLM providers
     async function fetchProviders() {
@@ -33,25 +54,16 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!response.ok) {
                 throw new Error('Failed to fetch providers');
             }
-            providers = await response.json();
-
-            // Populate the dropdown
-            llmProviderSelect.innerHTML = '';
+            const providers = await response.json();
 
             if (providers.length === 0) {
                 llmProviderSelect.innerHTML = '<option value="" disabled selected>No providers configured</option>';
                 return;
             }
 
-            providers.forEach((provider, index) => {
-                const option = document.createElement('option');
-                option.value = provider.model;
-                option.textContent = `${provider.name} - ${provider.description}`;
-                if (index === 0) {
-                    option.selected = true;
-                }
-                llmProviderSelect.appendChild(option);
-            });
+            llmProviderSelect.innerHTML = providers.map((provider, index) =>
+                `<option value="${provider.model}" ${index === 0 ? 'selected' : ''}>${provider.name} - ${provider.description}</option>`
+            ).join('');
         } catch (error) {
             console.error('Error fetching providers:', error);
             llmProviderSelect.innerHTML = '<option value="" disabled selected>Error loading providers</option>';
@@ -65,20 +77,9 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!response.ok) {
                 throw new Error('Failed to fetch library stats');
             }
-            const stats = await response.json();
-
-            // Remove skeleton classes and set content
-            const skeletonClasses = ['w-8', 'w-10', 'h-4', 'bg-gray-200', 'dark:bg-plex-gray', 'rounded', 'animate-pulse'];
-            [statArtists, statAlbums, statTracks].forEach(el => {
-                skeletonClasses.forEach(cls => el.classList.remove(cls));
-            });
-
-            statArtists.textContent = stats.artists.toLocaleString();
-            statAlbums.textContent = stats.albums.toLocaleString();
-            statTracks.textContent = stats.tracks.toLocaleString();
+            updateStats(await response.json());
         } catch (error) {
             console.error('Error fetching library stats:', error);
-            // Hide stats on error
             libraryStats.classList.add('hidden');
         }
     }
@@ -87,20 +88,17 @@ document.addEventListener('DOMContentLoaded', () => {
     async function refreshLibraryCache() {
         refreshBtn.disabled = true;
         refreshIcon.classList.add('animate-spin');
+        showStatSkeletons();
 
         try {
             const response = await fetch('/refresh', { method: 'POST' });
             if (!response.ok) {
                 throw new Error('Failed to refresh cache');
             }
-            const data = await response.json();
-
-            // Update stats with new values
-            statArtists.textContent = data.stats.artists.toLocaleString();
-            statAlbums.textContent = data.stats.albums.toLocaleString();
-            statTracks.textContent = data.stats.tracks.toLocaleString();
+            updateStats((await response.json()).stats);
         } catch (error) {
             console.error('Error refreshing cache:', error);
+            updateStats({ artists: '-', albums: '-', tracks: '-' });
         } finally {
             refreshBtn.disabled = false;
             refreshIcon.classList.remove('animate-spin');
