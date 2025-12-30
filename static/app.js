@@ -24,18 +24,25 @@ document.addEventListener('DOMContentLoaded', () => {
     const refreshIcon = document.getElementById('refreshIcon');
 
     // Skeleton classes for stats loading state
-    const baseSkeletonClasses = ['h-4', 'bg-gray-200', 'dark:bg-plex-gray', 'rounded', 'animate-pulse'];
+    const baseSkeletonClasses = ['inline-block', 'h-4', 'bg-gray-200', 'dark:bg-plex-gray', 'rounded', 'animate-pulse'];
+    const skeletonWidthClasses = {
+        statArtists: 'w-6',
+        statAlbums: 'w-6',
+        statTracks: 'w-8'
+    };
 
     function showStatSkeletons() {
         [statArtists, statAlbums, statTracks].forEach(el => {
             el.textContent = '';
             baseSkeletonClasses.forEach(cls => el.classList.add(cls));
+            el.classList.add(skeletonWidthClasses[el.id]);
         });
     }
 
     function hideStatSkeletons() {
         [statArtists, statAlbums, statTracks].forEach(el => {
             baseSkeletonClasses.forEach(cls => el.classList.remove(cls));
+            el.classList.remove(skeletonWidthClasses[el.id]);
         });
     }
 

@@ -52,34 +52,34 @@
       <!-- Header -->
       <header class="bg-white shadow dark:bg-plex-gray-dark">
         <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-          <div class="flex justify-between items-center">
+          <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
             <h1
-              class="text-3xl font-bold tracking-tight text-plex-gray dark:text-white"
+              class="text-2xl sm:text-3xl font-bold tracking-tight text-plex-gray dark:text-white"
             >
               Plexmuse
             </h1>
             <div
               id="libraryStats"
-              class="flex items-center space-x-4 text-sm text-gray-500 dark:text-gray-400"
+              class="flex items-center space-x-2 sm:space-x-4 text-xs sm:text-sm text-gray-500 dark:text-gray-400"
             >
               <div class="flex items-center">
                 <span
                   id="statArtists"
-                  class="font-semibold text-plex-gray dark:text-white w-8 h-4 bg-gray-200 dark:bg-plex-gray rounded animate-pulse"
+                  class="font-semibold text-plex-gray dark:text-white inline-block w-6 h-4 bg-gray-200 dark:bg-plex-gray rounded animate-pulse"
                 ></span>
                 <span class="ml-1">Artists</span>
               </div>
               <div class="flex items-center">
                 <span
                   id="statAlbums"
-                  class="font-semibold text-plex-gray dark:text-white w-8 h-4 bg-gray-200 dark:bg-plex-gray rounded animate-pulse"
+                  class="font-semibold text-plex-gray dark:text-white inline-block w-6 h-4 bg-gray-200 dark:bg-plex-gray rounded animate-pulse"
                 ></span>
                 <span class="ml-1">Albums</span>
               </div>
               <div class="flex items-center">
                 <span
                   id="statTracks"
-                  class="font-semibold text-plex-gray dark:text-white w-10 h-4 bg-gray-200 dark:bg-plex-gray rounded animate-pulse"
+                  class="font-semibold text-plex-gray dark:text-white inline-block w-8 h-4 bg-gray-200 dark:bg-plex-gray rounded animate-pulse"
                 ></span>
                 <span class="ml-1">Tracks</span>
               </div>
@@ -240,7 +240,7 @@
             class="hidden mt-6 bg-white shadow sm:rounded-lg dark:bg-plex-gray-dark"
           >
             <div class="px-4 py-5 sm:p-6">
-              <div class="flex justify-between items-center mb-6">
+              <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-6">
                 <div
                   class="h-7 w-48 bg-gray-200 dark:bg-plex-gray rounded animate-pulse"
                 ></div>
@@ -329,16 +329,16 @@
             class="hidden mt-6 bg-white shadow sm:rounded-lg dark:bg-plex-gray-dark"
           >
             <div class="px-4 py-5 sm:p-6">
-              <div class="flex justify-between items-center mb-6">
+              <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-6">
                 <h2
                   id="playlistName"
-                  class="text-xl font-semibold text-plex-gray dark:text-white"
+                  class="text-lg sm:text-xl font-semibold text-plex-gray dark:text-white"
                 ></h2>
                 <a
                   id="plexLink"
                   href="#"
                   target="_blank"
-                  class="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-plex-accent rounded-md hover:bg-plex-gold"
+                  class="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-plex-accent rounded-md hover:bg-plex-gold shrink-0"
                 >
                   Open in Plex
                   <svg
