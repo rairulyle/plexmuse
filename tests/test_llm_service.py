@@ -48,7 +48,7 @@ def test_get_artist_recommendations(mock_completion, sample_artists):
     mock_completion.return_value = mock_response
 
     service = LLMService()
-    result = service.get_artist_recommendations("Test prompt", sample_artists)
+    result = service.get_artist_recommendations("Test prompt", sample_artists, "gpt-4o")
 
     assert result == ["Artist1", "Artist2"]
     mock_completion.assert_called_once()
@@ -77,7 +77,7 @@ def test_get_track_recommendations(mock_completion):
     mock_completion.return_value = mock_response
 
     service = LLMService()
-    result = service.get_track_recommendations("Test prompt", artist_tracks)
+    result = service.get_track_recommendations("Test prompt", artist_tracks, "gpt-4o")
 
     assert len(result) == 2
     assert result[0]["artist"] == "Artist1"
@@ -93,7 +93,7 @@ def test_generate_playlist_name(mock_completion):
     mock_completion.return_value = mock_response
 
     service = LLMService()
-    result = service.generate_playlist_name("Test prompt")
+    result = service.generate_playlist_name("Test prompt", "gpt-4o")
 
     assert result == "Awesome Mix Vol. 1"
     mock_completion.assert_called_once()
@@ -106,7 +106,7 @@ def test_get_artist_recommendations_error_handling(mock_completion, sample_artis
 
     service = LLMService()
     with pytest.raises(Exception) as exc_info:
-        service.get_artist_recommendations("Test prompt", sample_artists)
+        service.get_artist_recommendations("Test prompt", sample_artists, "gpt-4o")
 
     assert str(exc_info.value) == "API Error"
 
@@ -120,7 +120,7 @@ def test_get_artist_recommendations_invalid_json(mock_completion, sample_artists
 
     service = LLMService()
     with pytest.raises(Exception):
-        service.get_artist_recommendations("Test prompt", sample_artists)
+        service.get_artist_recommendations("Test prompt", sample_artists, "gpt-4o")
 
 
 def test_get_track_recommendations_empty_response(mock_completion):
@@ -132,4 +132,4 @@ def test_get_track_recommendations_empty_response(mock_completion):
 
     service = LLMService()
     with pytest.raises(ValueError, match="No tracks found in response"):
-        service.get_track_recommendations("Test prompt", {})
+        service.get_track_recommendations("Test prompt", {}, "gpt-4o")

@@ -99,8 +99,8 @@ async def get_providers():
             LLMProvider(
                 id="openai",
                 name="OpenAI",
-                model="gpt-4o",
-                description="GPT-4o - Fast and capable",
+                model="openai/gpt-5-mini",
+                description="GPT 5 mini - Excellent for balanced reasoning.",
             )
         )
 
@@ -109,9 +109,9 @@ async def get_providers():
         providers.append(
             LLMProvider(
                 id="anthropic",
-                name="Claude",
-                model="anthropic/claude-sonnet-4-20250514",
-                description="Claude Sonnet 4 - Balanced performance",
+                name="Claude", 
+                model="anthropic/claude-sonnet-4-5-20250929", 
+                description="Claude Sonnet 4 - High intelligence for complex music transitions.",
             )
         )
 
@@ -121,8 +121,8 @@ async def get_providers():
             LLMProvider(
                 id="gemini",
                 name="Gemini",
-                model="gemini/gemini-1.5-pro",
-                description="Gemini 1.5 Pro - Large context window",
+                model="gemini-flash-latest",
+                description="Gemini Latest Flash - Best for large library indexing.",
             )
         )
 

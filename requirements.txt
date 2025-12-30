@@ -1,7 +1,7 @@
 fastapi==0.115.6
 uvicorn==0.34.0
 plexapi==4.16.0
-litellm==1.55.9
+litellm==1.80.11
 python-dotenv==1.0.1
 pydantic==2.10.4
 requests==2.32.3

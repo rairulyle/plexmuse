@@ -17,6 +17,19 @@ from app.models import Artist
 logger = logging.getLogger(__name__)
 
 
+def get_temperature_for_model(model: str) -> float:
+    """Get the appropriate temperature setting for a given model."""
+    model_lower = model.lower()
+    if "claude" in model_lower:
+        return 0.7
+    if "gemini" in model_lower:
+        return 1.0
+    if "gpt" in model_lower:
+        return 1.0
+    # Default fallback
+    return 0.7
+
+
 def clean_llm_response(content: str) -> str:
     """Extract JSON from LLM response, handling markdown code blocks"""
     # Check for ```json ... ``` pattern
@@ -58,7 +71,7 @@ class LLMService:
                         "content": f"Context: {artist_context}\n\nCreate a playlist for: {prompt}",
                     },
                 ],
-                temperature=0.7,
+                temperature=get_temperature_for_model(model),
             )
 
             content = clean_llm_response(response.choices[0].message.content)
@@ -122,7 +135,7 @@ class LLMService:
                         """,
                     },
                 ],
-                temperature=0.7,
+                temperature=get_temperature_for_model(model),
             )
 
             content = clean_llm_response(response.choices[0].message.content)
@@ -153,7 +166,7 @@ class LLMService:
                     {"role": "system", "content": system_prompt},
                     {"role": "user", "content": prompt},
                 ],
-                temperature=0.7,
+                temperature=get_temperature_for_model(model),
             )
 
             name = response.choices[0].message.content.strip()
