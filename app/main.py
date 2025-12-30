@@ -13,7 +13,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 
-from app.models import Artist, PlaylistRequest, PlaylistResponse, Track
+from app.models import Artist, LLMProvider, PlaylistRequest, PlaylistResponse, Track
 
 from .services.llm_service import LLMService
 from .services.plex_service import PlexService
@@ -86,6 +86,47 @@ async def health_check():
 async def get_artists():
     """Get all artists from the Plex music library"""
     return plex_service.get_all_artists()
+
+
+@app.get("/providers", response_model=List[LLMProvider])
+async def get_providers():
+    """Get available LLM providers based on configured API keys"""
+    providers = []
+
+    # Check for OpenAI API key
+    if os.getenv("OPENAI_API_KEY"):
+        providers.append(
+            LLMProvider(
+                id="openai",
+                name="OpenAI",
+                model="gpt-4o",
+                description="GPT-4o - Fast and capable",
+            )
+        )
+
+    # Check for Anthropic API key
+    if os.getenv("ANTHROPIC_API_KEY"):
+        providers.append(
+            LLMProvider(
+                id="anthropic",
+                name="Claude",
+                model="anthropic/claude-sonnet-4-20250514",
+                description="Claude Sonnet 4 - Balanced performance",
+            )
+        )
+
+    # Check for Gemini API key
+    if os.getenv("GEMINI_API_KEY"):
+        providers.append(
+            LLMProvider(
+                id="gemini",
+                name="Gemini",
+                model="gemini/gemini-1.5-pro",
+                description="Gemini 1.5 Pro - Large context window",
+            )
+        )
+
+    return providers
 
 
 @app.post("/recommendations", response_model=PlaylistResponse)

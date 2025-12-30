@@ -111,3 +111,53 @@ def test_root_endpoint(mock_env):
     assert "window.plexToken" in content
     assert "http://plex:32400" in content
     assert "test-token" in content
+
+
+def test_get_providers_all_configured():
+    """Test providers endpoint when all API keys are configured"""
+    with patch.dict(
+        os.environ,
+        {
+            "OPENAI_API_KEY": "test-openai-key",
+            "ANTHROPIC_API_KEY": "test-anthropic-key",
+            "GEMINI_API_KEY": "test-gemini-key",
+        },
+    ):
+        response = client.get("/providers")
+        assert response.status_code == 200
+        providers = response.json()
+        assert len(providers) == 3
+
+        # Check OpenAI provider
+        openai_provider = next(p for p in providers if p["id"] == "openai")
+        assert openai_provider["name"] == "OpenAI"
+        assert "gpt-4o" in openai_provider["model"]
+
+        # Check Anthropic provider
+        anthropic_provider = next(p for p in providers if p["id"] == "anthropic")
+        assert anthropic_provider["name"] == "Claude"
+        assert "claude" in anthropic_provider["model"]
+
+        # Check Gemini provider
+        gemini_provider = next(p for p in providers if p["id"] == "gemini")
+        assert gemini_provider["name"] == "Gemini"
+        assert "gemini" in gemini_provider["model"]
+
+
+def test_get_providers_partial_configured():
+    """Test providers endpoint when only some API keys are configured"""
+    with patch.dict(os.environ, {"OPENAI_API_KEY": "test-openai-key"}, clear=True):
+        response = client.get("/providers")
+        assert response.status_code == 200
+        providers = response.json()
+        assert len(providers) == 1
+        assert providers[0]["id"] == "openai"
+
+
+def test_get_providers_none_configured():
+    """Test providers endpoint when no API keys are configured"""
+    with patch.dict(os.environ, {}, clear=True):
+        response = client.get("/providers")
+        assert response.status_code == 200
+        providers = response.json()
+        assert len(providers) == 0

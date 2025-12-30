@@ -10,6 +10,45 @@ document.addEventListener('DOMContentLoaded', () => {
     const errorMessage = document.getElementById('errorMessage');
     const errorText = document.getElementById('errorText');
     const dismissError = document.getElementById('dismissError');
+    const llmProviderSelect = document.getElementById('llmProvider');
+
+    // LLM providers
+    let providers = [];
+
+    // Fetch available LLM providers
+    async function fetchProviders() {
+        try {
+            const response = await fetch('/providers');
+            if (!response.ok) {
+                throw new Error('Failed to fetch providers');
+            }
+            providers = await response.json();
+
+            // Populate the dropdown
+            llmProviderSelect.innerHTML = '';
+
+            if (providers.length === 0) {
+                llmProviderSelect.innerHTML = '<option value="" disabled selected>No providers configured</option>';
+                return;
+            }
+
+            providers.forEach((provider, index) => {
+                const option = document.createElement('option');
+                option.value = provider.model;
+                option.textContent = `${provider.name} - ${provider.description}`;
+                if (index === 0) {
+                    option.selected = true;
+                }
+                llmProviderSelect.appendChild(option);
+            });
+        } catch (error) {
+            console.error('Error fetching providers:', error);
+            llmProviderSelect.innerHTML = '<option value="" disabled selected>Error loading providers</option>';
+        }
+    }
+
+    // Fetch providers on page load
+    fetchProviders();
 
     // Playlist length handling
     const lengthButtons = document.querySelectorAll('.playlist-length-btn');
@@ -84,6 +123,13 @@ document.addEventListener('DOMContentLoaded', () => {
         // Get form data
         const prompt = document.getElementById('prompt').value;
         const { min, max } = lengthConfigs[selectedLength];
+        const selectedModel = llmProviderSelect.value;
+
+        if (!selectedModel) {
+            showError('Please select an AI provider');
+            loadingState.classList.add('hidden');
+            return;
+        }
 
         try {
             const response = await fetch('/recommendations', {
@@ -93,7 +139,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 },
                 body: JSON.stringify({
                     prompt,
-                    model: 'gpt-4',
+                    model: selectedModel,
                     min_tracks: min,
                     max_tracks: max
                 }),

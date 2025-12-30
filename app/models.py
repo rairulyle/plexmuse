@@ -46,3 +46,12 @@ class AIRecommendation(BaseModel):
 
     artists: List[str]
     explanation: Optional[str] = None
+
+
+class LLMProvider(BaseModel):
+    """Model for available LLM providers"""
+
+    id: str
+    name: str
+    model: str
+    description: str
