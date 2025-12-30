@@ -1,6 +1,8 @@
-# Plexmuse 🎶🤖
+# Plexmuse - Enhanced 🎶🤖
 
-Welcome to **Plexmuse**! This project leverages the power of AI to generate personalized playlists from your Plex music library. Whether you're looking for new music recommendations or creating the perfect playlist for any occasion, this API has got you covered.
+An enhanced fork of [LubergAlexander/plexmuse](https://github.com/LubergAlexander/plexmuse).
+
+Generate personalized playlists from your Plex music library using AI. Whether you're looking for new music recommendations or creating the perfect playlist for any occasion, Plexmuse has got you covered.
 
 ## Features ✨
 
@@ -121,4 +123,4 @@ Open your browser and navigate to `http://127.0.0.1:8000/docs` to explore the AP
 
 ## Acknowledgements
 
-This project is a fork of [LubergAlexander/plexmuse](https://github.com/LubergAlexander/plexmuse). Thank you to the original author for creating this awesome project!
+Thank you to [LubergAlexander](https://github.com/LubergAlexander) for creating the original project!
